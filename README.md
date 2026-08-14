@@ -25,11 +25,11 @@ DATABASE_ID = "your_notion_database_id"
 python -m streamlit run app.py
 ```
 
-## Streamlit Cloud 배포
+## 배포 (Render)
 
-1. [share.streamlit.io](https://share.streamlit.io) — Repository: `elova9049/lab-arng`
-2. Branch: `main` / Main file: `app.py`
-3. Secrets에 `NOTION_TOKEN`, `DATABASE_ID` 설정
+1. [dashboard.render.com](https://dashboard.render.com) — GitHub 연동 후 **New +** → **Blueprint** → Repository: `elova9049/lab-arng` (저장소의 `render.yaml`이 빌드/시작 명령을 자동 설정)
+2. Environment에 `NOTION_TOKEN`, `DATABASE_ID` 환경변수 설정
+3. Deploy 후 `*.onrender.com` URL 공유
 
 ## Claude Code / AI 이어하기
 

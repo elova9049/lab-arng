@@ -1,4 +1,5 @@
 import json
+import os
 import streamlit as st
 import streamlit.components.v1 as components
 from datetime import datetime, time, timedelta
@@ -54,13 +55,27 @@ NAME_PROPERTY = "이름"
 DATE_PROPERTY = "날짜"
 
 
+def get_secret(key: str) -> str:
+    # Streamlit Cloud provides st.secrets from secrets.toml; other hosts
+    # (e.g. Render) inject plain environment variables instead.
+    try:
+        return st.secrets[key]
+    except Exception:
+        pass
+
+    value = os.environ.get(key)
+    if not value:
+        raise KeyError(f"Missing required secret: {key}")
+    return value
+
+
 @st.cache_resource
 def get_notion_client() -> Client:
-    return Client(auth=st.secrets["NOTION_TOKEN"])
+    return Client(auth=get_secret("NOTION_TOKEN"))
 
 
 def get_database_id() -> str:
-    return st.secrets["DATABASE_ID"]
+    return get_secret("DATABASE_ID")
 
 INSTRUMENT_CSS = """
 <style>
