@@ -1,0 +1,364 @@
+:root {
+    --charcoal: #2b2b2b;
+    --charcoal-soft: #3a3a3a;
+    --matte-grey: #6e6e6e;
+    --matte-grey-light: #9a9a9a;
+    --off-white: #f7f7f5;
+    --surface: #fafaf8;
+    --border: #e0e0e0;
+    --field-height: 40px;
+    --field-radius: 6px;
+    --field-font-size: 0.875rem;
+    --field-padding-x: 0.75rem;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background-color: var(--off-white);
+    color: var(--charcoal);
+    font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.page {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 3.25rem 1.5rem 4.5rem;
+}
+
+.app-title {
+    font-size: 1.65rem;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    color: var(--charcoal);
+    margin: 0 0 2.5rem 0;
+    line-height: 1.4;
+}
+
+.panel-title {
+    font-size: 0.95rem;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    color: var(--charcoal);
+    margin: 0 0 1rem 0;
+    padding-bottom: 0.55rem;
+    border-bottom: 1px solid var(--border);
+}
+
+/* Tabs */
+.tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.75rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.tab-btn {
+    appearance: none;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 0.65rem 0.25rem;
+    margin-right: 1.5rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: var(--matte-grey);
+    cursor: pointer;
+}
+
+.tab-btn.active {
+    color: var(--charcoal);
+    border-bottom-color: var(--charcoal);
+}
+
+.tab-panel {
+    display: none;
+}
+
+.tab-panel.active {
+    display: block;
+}
+
+/* Layout */
+.columns {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+
+.col-form {
+    flex: 1.05 1 320px;
+    min-width: 320px;
+}
+
+.col-status {
+    flex: 1 1 320px;
+    min-width: 320px;
+}
+
+.panel {
+    border: 1px solid var(--border);
+    border-radius: var(--field-radius);
+    background: var(--surface);
+    padding: 1.75rem 1.5rem;
+}
+
+/* Fields */
+.field-label {
+    display: block;
+    font-size: 0.74rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--matte-grey);
+    margin-bottom: 0.45rem;
+}
+
+.field-input,
+.field-select {
+    box-sizing: border-box;
+    width: 100%;
+    height: var(--field-height);
+    padding: 0 var(--field-padding-x);
+    border: 1px solid var(--border);
+    border-radius: var(--field-radius);
+    background: #ffffff;
+    color: var(--charcoal);
+    font-size: var(--field-font-size);
+    font-family: inherit;
+    margin-bottom: 1.15rem;
+    outline: none;
+}
+
+.field-input:focus,
+.field-select:focus {
+    border-color: var(--matte-grey);
+}
+
+.field-hidden {
+    display: none;
+}
+
+.btn-submit {
+    appearance: none;
+    border-radius: var(--field-radius);
+    border: 1px solid var(--charcoal-soft);
+    background: var(--charcoal);
+    color: #f5f5f3;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.6rem 1.35rem;
+    min-height: var(--field-height);
+    cursor: pointer;
+}
+
+.btn-submit:hover {
+    border-color: var(--charcoal);
+    background: var(--charcoal-soft);
+    color: #ffffff;
+}
+
+.btn-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Notices */
+.notice-block {
+    margin-bottom: 1.25rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--field-radius);
+    background: #f0f0ee;
+}
+
+.notice-block.success {
+    background: #ececea;
+    border-left: 3px solid #5a5a5a;
+}
+
+.notice-block.error {
+    background: #e8e8e6;
+    border-left: 3px solid #4a4a4a;
+}
+
+.notice-label {
+    display: block;
+    font-size: 0.66rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--matte-grey);
+    margin-bottom: 0.4rem;
+}
+
+.notice-text {
+    font-size: 0.88rem;
+    font-weight: 400;
+    color: var(--charcoal);
+    line-height: 1.65;
+    margin: 0;
+    white-space: pre-line;
+}
+
+/* Reservation list */
+.reservation-empty {
+    font-size: 0.88rem;
+    font-weight: 400;
+    color: var(--matte-grey-light);
+    line-height: 1.65;
+    margin: 0;
+}
+
+.reservation-item {
+    font-size: 0.88rem;
+    font-weight: 400;
+    color: var(--charcoal-soft);
+    line-height: 1.75;
+    margin: 0;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.reservation-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.reservation-name {
+    color: var(--charcoal);
+    font-weight: 500;
+}
+
+.reservation-period {
+    color: var(--matte-grey);
+    font-weight: 400;
+}
+
+/* Equipment filter (calendar tab) */
+.equipment-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    color: var(--charcoal-soft);
+    cursor: pointer;
+}
+
+.filter-chip input {
+    accent-color: var(--charcoal);
+}
+
+/* Calendar legend */
+.calendar-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem 1rem;
+    margin: 0 0 1rem 0;
+}
+
+.calendar-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.74rem;
+    color: var(--charcoal-soft);
+}
+
+.calendar-legend-swatch {
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 2px;
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+/* FullCalendar overrides */
+#calendar {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: var(--field-radius);
+    padding: 0.75rem;
+}
+
+.fc {
+    --fc-border-color: var(--border);
+    --fc-page-bg-color: #ffffff;
+    --fc-neutral-bg-color: #f7f7f5;
+    --fc-today-bg-color: #f0f0ee;
+    --fc-button-bg-color: #3a3a3a;
+    --fc-button-border-color: #3a3a3a;
+    --fc-button-hover-bg-color: #2b2b2b;
+    --fc-button-hover-border-color: #2b2b2b;
+    --fc-button-active-bg-color: #2b2b2b;
+    --fc-button-active-border-color: #2b2b2b;
+}
+
+.fc .fc-toolbar-title {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--charcoal);
+}
+
+.fc .fc-col-header-cell-cushion,
+.fc .fc-daygrid-day-number,
+.fc .fc-list-day-text,
+.fc .fc-list-day-side-text {
+    color: var(--matte-grey);
+    text-decoration: none;
+}
+
+a.fc-event,
+a.fc-event:hover,
+a.fc-event:focus,
+a.fc-event:active {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+    text-decoration: none !important;
+    padding: 1px 2px !important;
+}
+
+.fc-event-main,
+.fc-event-main-frame,
+.fc-event-title-container {
+    background: transparent !important;
+}
+
+.lab-event-chip {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 3px 6px;
+    border-radius: 4px;
+    color: #ffffff !important;
+    font-size: 0.72rem;
+    font-weight: 500;
+    line-height: 1.35;
+    white-space: normal;
+    overflow: hidden;
+}
+
+.fc-list-event-dot {
+    border-width: 6px !important;
+}
+
+.fc-list-event-title a {
+    color: var(--charcoal) !important;
+    text-decoration: none !important;
+}

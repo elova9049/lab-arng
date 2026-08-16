@@ -1,0 +1,9 @@
+{
+  "name": "lab-arng",
+  "version": "1.0.0",
+  "private": true,
+  "description": "시험 장비 예약 - Notion-backed lab equipment reservation app",
+  "engines": {
+    "node": ">=18"
+  }
+}
