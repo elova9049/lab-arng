@@ -1,6 +1,6 @@
 # 시험 장비 예약
 
-Streamlit 기반 실험실 장비 예약 앱. Notion 데이터베이스와 연동합니다.
+정적 HTML/CSS/JS + Vercel Serverless Function 기반 실험실 장비 예약 앱. Notion 데이터베이스와 연동합니다.
 
 ## 기능
 
@@ -10,26 +10,26 @@ Streamlit 기반 실험실 장비 예약 앱. Notion 데이터베이스와 연�
 
 ## 로컬 실행
 
-```powershell
-pip install -r requirements.txt
+```bash
+npm install -g vercel
+vercel dev
 ```
 
-`.streamlit/secrets.toml` 파일을 만듭니다 (`.streamlit/secrets.toml.example` 참고):
+`NOTION_TOKEN`, `DATABASE_ID` 환경변수가 필요합니다. `.env` 파일을 만들거나 `vercel env pull`로 받으세요:
 
-```toml
-NOTION_TOKEN = "your_notion_integration_token"
-DATABASE_ID = "your_notion_database_id"
+```
+NOTION_TOKEN=your_notion_integration_token
+DATABASE_ID=your_notion_database_id
 ```
 
-```powershell
-python -m streamlit run app.py
-```
+→ http://localhost:3000
 
-## 배포 (Render)
+## 배포 (Vercel)
 
-1. [dashboard.render.com](https://dashboard.render.com) — GitHub 연동 후 **New +** → **Blueprint** → Repository: `elova9049/lab-arng` (저장소의 `render.yaml`이 빌드/시작 명령을 자동 설정)
-2. Environment에 `NOTION_TOKEN`, `DATABASE_ID` 환경변수 설정
-3. Deploy 후 `*.onrender.com` URL 공유
+1. [vercel.com](https://vercel.com) → GitHub 연동 → Repository: `elova9049/lab-arng` import
+2. Framework Preset: **Other** (빌드 명령 없음, 정적 파일 그대로 서빙)
+3. Project Settings → Environment Variables에 `NOTION_TOKEN`, `DATABASE_ID` 추가
+4. Deploy 후 생성된 `*.vercel.app` URL 공유
 
 ## Claude Code / AI 이어하기
 

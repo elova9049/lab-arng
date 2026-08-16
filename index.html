@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>시험 장비 예약</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link
+    href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css"
+    rel="stylesheet"
+  />
+</head>
+<body>
+  <div class="page">
+    <p class="app-title">시험 장비 예약</p>
+
+    <div class="tabs">
+      <button type="button" class="tab-btn active" data-tab="register">예약 등록</button>
+      <button type="button" class="tab-btn" data-tab="calendar">설비별 달력</button>
+    </div>
+
+    <section id="tab-register" class="tab-panel active">
+      <div class="columns">
+        <div class="col-form">
+          <div id="notice-area"></div>
+          <div class="panel">
+            <label class="field-label" for="equipment-select">Equipment</label>
+            <select id="equipment-select" class="field-select"></select>
+
+            <form id="reservation-form">
+              <label class="field-label" for="name-input">Name</label>
+              <input id="name-input" class="field-input" type="text" autocomplete="off" />
+
+              <label class="field-label" for="start-date">Start Date</label>
+              <input id="start-date" class="field-input" type="date" />
+
+              <label class="field-label" for="start-time">Start Time</label>
+              <input id="start-time" class="field-input" type="time" />
+
+              <label class="field-label" for="duration-select">Test Duration (Hours)</label>
+              <select id="duration-select" class="field-select">
+                <option value="500">500</option>
+                <option value="1000">1000</option>
+                <option value="2000">2000</option>
+                <option value="custom">Direct Input</option>
+              </select>
+
+              <div id="custom-duration-wrap" class="field-hidden">
+                <label class="field-label" for="custom-duration">Custom Duration (Hours)</label>
+                <input
+                  id="custom-duration"
+                  class="field-input"
+                  type="number"
+                  min="1"
+                  step="1"
+                  value="24"
+                />
+              </div>
+
+              <button type="submit" class="btn-submit">Register</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="col-status">
+          <p class="panel-title">장비 예약 현황</p>
+          <div class="panel">
+            <div id="reservation-list"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-calendar" class="tab-panel">
+      <p class="panel-title">전체 설비 예약 달력</p>
+      <div class="panel">
+        <label class="field-label">Equipment Filter</label>
+        <div id="equipment-filter" class="equipment-filter"></div>
+        <div id="calendar-legend" class="calendar-legend"></div>
+        <div id="calendar"></div>
+      </div>
+    </section>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,6 +1,4 @@
-.streamlit/secrets.toml
-__pycache__/
-*.pyc
 .env
-.venv/
-venv/
+.env.local
+.vercel/
+node_modules/
