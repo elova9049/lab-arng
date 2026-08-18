@@ -425,12 +425,11 @@
       const btn = event.target.closest(".btn-cancel");
       if (!btn) return;
 
-      const password = window.prompt(`${btn.dataset.label}하려면 등록 시 입력한 비밀번호를 입력하세요:`);
+      const password = window.prompt(
+        `${btn.dataset.label}하려면 등록 시 입력한 비밀번호를 입력하세요.\n` +
+          `(비밀번호를 설정하지 않은 예약이면 빈 칸으로 두고 확인을 누르세요.)`
+      );
       if (password === null) return; // user cancelled the prompt
-      if (!password.trim()) {
-        alert("비밀번호를 입력해주세요.");
-        return;
-      }
 
       btn.disabled = true;
       try {
