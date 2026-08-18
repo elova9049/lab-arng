@@ -138,6 +138,17 @@ async function deleteReservation(id, password) {
   return rows.length > 0 ? "deleted" : "not_found";
 }
 
+// Admin override: deletes without checking password_hash at all. The
+// caller (api/reservations.js) is responsible for verifying the supplied
+// password against ADMIN_PASSWORD before calling this — this function
+// trusts that's already done.
+async function forceDeleteReservation(id) {
+  await ensureSchema();
+  const sql = getSql();
+  const rows = await sql`DELETE FROM reservations WHERE id = ${id} RETURNING id`;
+  return rows.length > 0;
+}
+
 async function createReservation({ name, equipment, startIso, endIso, password }) {
   await ensureSchema();
   const sql = getSql();
@@ -163,4 +174,5 @@ module.exports = {
   fetchEquipmentReservationRecords,
   createReservation,
   deleteReservation,
+  forceDeleteReservation,
 };

@@ -137,6 +137,10 @@ CONSTRAINT reservations_no_overlap EXCLUDE USING gist (
 
 **성공 피드백:** 등록 성공 시 notice 표시 + 폼 리셋 + `allRecordsCache = null`로 캐시 무효화 후 현황 재조회.
 
+**예약 취소/조기 종료:** 등록 시 입력한 Password(4자리 이상)가 `password_hash`로 bcrypt 해시 저장됨 (`pgcrypto`의 `crypt()`/`gen_salt('bf', 8)`). 각 예약 항목의 "지금 종료"(진행 중)/"예약 취소"(예정) 버튼 클릭 시 비밀번호를 prompt로 입력받아 `DELETE /api/reservations?id=`로 전송, 서버가 `crypt()`로 대조. 틀리면 403.
+
+**관리자 강제 취소:** `ADMIN_PASSWORD` 환경변수를 설정해두면, 위 취소 팝업에 예약 비밀번호 대신 이 값을 입력해도 통과됨(같은 입력창, 별도 관리자 UI 없음). `api/reservations.js`의 `isAdminPassword()`가 `crypto.timingSafeEqual`로 비교. `ADMIN_PASSWORD` 미설정 시 이 경로는 그냥 비활성화됨(항상 403).
+
 ## 장비 목록 (16종)
 
 `EQUIPMENT_OPTIONS` — `js/app.js`(클라이언트 표시용)와 `api/_equipment.js`(서버 검증용) 두 곳에 동일하게 유지해야 함. 관리번호 포함 문자열 그대로 저장.
@@ -155,6 +159,8 @@ CONSTRAINT reservations_no_overlap EXCLUDE USING gist (
 - DB 연결 문자열은 **Vercel Environment Variables만** 사용 (Neon 연동 시 자동 등록, `api/_db.js`가 `process.env.DATABASE_URL`로 조회)
 - `.env`는 gitignore
 - DB 호출은 반드시 `api/*.js` 서버 측에서만 — 브라우저(`js/app.js`)는 `DATABASE_URL`을 절대 알지 못함
+- 예약 취소 비밀번호는 평문 저장 안 함 (bcrypt 해시만 DB에 저장)
+- 관리자 강제취소용 `ADMIN_PASSWORD`도 Vercel Environment Variables로만 설정 (Settings → Environments → Production/Preview → 값 추가 → Redeploy). 코드에 하드코딩 금지
 
 ## 알려진 이슈 / 해결 이력
 

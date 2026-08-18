@@ -1,15 +1,30 @@
 "use strict";
 
+const crypto = require("crypto");
 const {
   fetchAllReservationRecords,
   fetchEquipmentReservationRecords,
   createReservation,
   deleteReservation,
+  forceDeleteReservation,
 } = require("./_db");
 const EQUIPMENT_OPTIONS = require("./_equipment");
 
 function intervalsOverlap(startA, endA, startB, endB) {
   return startA < endB && startB < endA;
+}
+
+// Lets an admin cancel any reservation without knowing its password, via
+// a single shared secret in ADMIN_PASSWORD. Not set up at all unless that
+// env var is configured — no admin backdoor by default.
+function isAdminPassword(password) {
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  if (!adminPassword) return false;
+
+  const supplied = Buffer.from(password);
+  const expected = Buffer.from(adminPassword);
+  if (supplied.length !== expected.length) return false;
+  return crypto.timingSafeEqual(supplied, expected);
 }
 
 module.exports = async function handler(req, res) {
@@ -92,16 +107,28 @@ module.exports = async function handler(req, res) {
       }
 
       const result = await deleteReservation(id, password);
+      if (result === "deleted") {
+        res.status(200).json({ ok: true });
+        return;
+      }
       if (result === "not_found") {
         res.status(404).json({ error: "해당 예약을 찾을 수 없습니다." });
         return;
       }
-      if (result === "forbidden") {
-        res.status(403).json({ error: "비밀번호가 일치하지 않습니다." });
+
+      // result === "forbidden": wrong owner password. Give the admin
+      // master password one more chance before rejecting outright.
+      if (isAdminPassword(password)) {
+        const deleted = await forceDeleteReservation(id);
+        if (!deleted) {
+          res.status(404).json({ error: "해당 예약을 찾을 수 없습니다." });
+          return;
+        }
+        res.status(200).json({ ok: true });
         return;
       }
 
-      res.status(200).json({ ok: true });
+      res.status(403).json({ error: "비밀번호가 일치하지 않습니다." });
       return;
     }
 
