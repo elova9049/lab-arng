@@ -43,6 +43,10 @@ function ensureSchema() {
     const sql = getSql();
     schemaReady = (async () => {
       await sql`CREATE EXTENSION IF NOT EXISTS btree_gist`;
+      // Used to hash the cancel password with bcrypt (crypt/gen_salt) so
+      // verification happens in a single atomic query instead of the app
+      // fetching a hash and comparing it in JS.
+      await sql`CREATE EXTENSION IF NOT EXISTS pgcrypto`;
       await sql`
         CREATE TABLE IF NOT EXISTS reservations (
           id BIGSERIAL PRIMARY KEY,
@@ -50,6 +54,7 @@ function ensureSchema() {
           equipment TEXT NOT NULL,
           start_time TIMESTAMPTZ NOT NULL,
           end_time TIMESTAMPTZ NOT NULL,
+          password_hash TEXT,
           created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
           CONSTRAINT reservations_no_overlap EXCLUDE USING gist (
             equipment WITH =,
@@ -57,6 +62,11 @@ function ensureSchema() {
           )
         )
       `;
+      // Covers deployments where the table already existed before
+      // password_hash was added — CREATE TABLE IF NOT EXISTS above is a
+      // no-op against an existing table, so the column has to be added
+      // separately.
+      await sql`ALTER TABLE reservations ADD COLUMN IF NOT EXISTS password_hash TEXT`;
       await sql`
         CREATE INDEX IF NOT EXISTS reservations_equipment_start_idx
           ON reservations (equipment, start_time)
@@ -107,22 +117,34 @@ async function fetchEquipmentReservationRecords(equipment) {
 // in-progress one early" — the app has no history view, so there's no
 // benefit to distinguishing the two at the data layer, only in the button
 // label the UI shows.
-async function deleteReservation(id) {
+//
+// Returns "not_found" | "forbidden" | "deleted". Checked as a separate
+// SELECT before the DELETE (rather than one conditional DELETE) purely so
+// the caller can tell "wrong password" apart from "already gone" and
+// respond with the right status code.
+async function deleteReservation(id, password) {
   await ensureSchema();
   const sql = getSql();
-  const rows = await sql`
-    DELETE FROM reservations WHERE id = ${id} RETURNING id
+
+  const [row] = await sql`
+    SELECT (password_hash IS NULL OR password_hash = crypt(${password}, password_hash)) AS authorized
+    FROM reservations
+    WHERE id = ${id}
   `;
-  return rows.length > 0;
+  if (!row) return "not_found";
+  if (!row.authorized) return "forbidden";
+
+  const rows = await sql`DELETE FROM reservations WHERE id = ${id} RETURNING id`;
+  return rows.length > 0 ? "deleted" : "not_found";
 }
 
-async function createReservation({ name, equipment, startIso, endIso }) {
+async function createReservation({ name, equipment, startIso, endIso, password }) {
   await ensureSchema();
   const sql = getSql();
   try {
     const rows = await sql`
-      INSERT INTO reservations (name, equipment, start_time, end_time)
-      VALUES (${name}, ${equipment}, ${startIso}, ${endIso})
+      INSERT INTO reservations (name, equipment, start_time, end_time, password_hash)
+      VALUES (${name}, ${equipment}, ${startIso}, ${endIso}, crypt(${password}, gen_salt('bf', 8)))
       RETURNING id
     `;
     return { id: rows[0].id };

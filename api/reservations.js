@@ -21,11 +21,17 @@ module.exports = async function handler(req, res) {
     }
 
     if (req.method === "POST") {
-      const { name, equipment, start, end } = req.body || {};
+      const { name, equipment, start, end, password } = req.body || {};
 
       const trimmedName = typeof name === "string" ? name.trim() : "";
       if (!trimmedName) {
         res.status(400).json({ error: "예약자 이름을 입력해주세요." });
+        return;
+      }
+
+      const trimmedPassword = typeof password === "string" ? password.trim() : "";
+      if (trimmedPassword.length < 4) {
+        res.status(400).json({ error: "취소 시 필요한 비밀번호를 4자리 이상 입력해주세요." });
         return;
       }
 
@@ -47,6 +53,7 @@ module.exports = async function handler(req, res) {
           equipment,
           startIso: new Date(startMs).toISOString(),
           endIso: new Date(endMs).toISOString(),
+          password: trimmedPassword,
         });
         res.status(201).json({ ok: true, id: created.id });
       } catch (err) {
@@ -78,9 +85,19 @@ module.exports = async function handler(req, res) {
         return;
       }
 
-      const deleted = await deleteReservation(id);
-      if (!deleted) {
+      const password = typeof req.body?.password === "string" ? req.body.password.trim() : "";
+      if (!password) {
+        res.status(400).json({ error: "비밀번호를 입력해주세요." });
+        return;
+      }
+
+      const result = await deleteReservation(id, password);
+      if (result === "not_found") {
         res.status(404).json({ error: "해당 예약을 찾을 수 없습니다." });
+        return;
+      }
+      if (result === "forbidden") {
+        res.status(403).json({ error: "비밀번호가 일치하지 않습니다." });
         return;
       }
 
