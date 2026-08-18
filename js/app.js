@@ -191,14 +191,18 @@
       }
 
       const itemsHtml = active
-        .map(
-          (record) => `
-            <p class="reservation-item">
-              <span class="reservation-name">${escapeHtml(record.name)}</span>
-              <span class="reservation-period"> · ${formatKst(record.startDate)} → ${formatKst(record.endDate)}</span>
-            </p>
-          `
-        )
+        .map((record) => {
+          const cancelLabel = record.startDate <= now ? "지금 종료" : "예약 취소";
+          return `
+            <div class="reservation-item">
+              <span class="reservation-text">
+                <span class="reservation-name">${escapeHtml(record.name)}</span>
+                <span class="reservation-period"> · ${formatKst(record.startDate)} → ${formatKst(record.endDate)}</span>
+              </span>
+              <button type="button" class="btn-cancel" data-id="${record.id}" data-label="${cancelLabel}">${cancelLabel}</button>
+            </div>
+          `;
+        })
         .join("");
       listEl.innerHTML = statusHtml + itemsHtml;
     } catch (err) {
@@ -408,6 +412,34 @@
     });
   }
 
+  // Delegated so it keeps working after renderReservationList() replaces
+  // #reservation-list's contents on every refresh.
+  function initCancelButtons() {
+    document.getElementById("reservation-list").addEventListener("click", async (event) => {
+      const btn = event.target.closest(".btn-cancel");
+      if (!btn) return;
+
+      const confirmed = window.confirm(`${btn.dataset.label} 하시겠습니까?`);
+      if (!confirmed) return;
+
+      btn.disabled = true;
+      try {
+        const res = await fetch(`/api/reservations?id=${encodeURIComponent(btn.dataset.id)}`, {
+          method: "DELETE",
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error || "취소 처리 중 오류가 발생했습니다.");
+        }
+        allRecordsCache = null;
+        renderReservationList();
+      } catch (err) {
+        alert(err.message);
+        btn.disabled = false;
+      }
+    });
+  }
+
   // ---------- Init ----------
   document.addEventListener("DOMContentLoaded", () => {
     initTabs();
@@ -415,6 +447,7 @@
     populateEquipmentFilter();
     initDurationToggle();
     initForm();
+    initCancelButtons();
 
     document.getElementById("equipment-select").addEventListener("change", renderReservationList);
     renderReservationList();

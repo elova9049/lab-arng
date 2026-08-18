@@ -4,6 +4,7 @@ const {
   fetchAllReservationRecords,
   fetchEquipmentReservationRecords,
   createReservation,
+  deleteReservation,
 } = require("./_db");
 const EQUIPMENT_OPTIONS = require("./_equipment");
 
@@ -70,7 +71,24 @@ module.exports = async function handler(req, res) {
       return;
     }
 
-    res.setHeader("Allow", "GET, POST");
+    if (req.method === "DELETE") {
+      const id = Number(req.query?.id);
+      if (!Number.isInteger(id) || id <= 0) {
+        res.status(400).json({ error: "유효하지 않은 예약 id입니다." });
+        return;
+      }
+
+      const deleted = await deleteReservation(id);
+      if (!deleted) {
+        res.status(404).json({ error: "해당 예약을 찾을 수 없습니다." });
+        return;
+      }
+
+      res.status(200).json({ ok: true });
+      return;
+    }
+
+    res.setHeader("Allow", "GET, POST, DELETE");
     res.status(405).json({ error: "Method not allowed" });
   } catch (err) {
     res.status(500).json({ error: err.message || "서버 오류가 발생했습니다." });
