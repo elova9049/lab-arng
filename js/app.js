@@ -369,6 +369,12 @@
         return;
       }
 
+      const password = document.getElementById("password-input").value.trim();
+      if (password.length < 4) {
+        showNotice("취소 시 필요한 비밀번호를 4자리 이상 입력해주세요.", "error");
+        return;
+      }
+
       const equipment = document.getElementById("equipment-select").value;
       const startDate = document.getElementById("start-date").value;
       const startTime = document.getElementById("start-time").value;
@@ -382,7 +388,7 @@
         const res = await fetch("/api/reservations", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, equipment, start: startIso, end: endIso }),
+          body: JSON.stringify({ name, password, equipment, start: startIso, end: endIso }),
         });
         const data = await res.json();
 
@@ -419,13 +425,19 @@
       const btn = event.target.closest(".btn-cancel");
       if (!btn) return;
 
-      const confirmed = window.confirm(`${btn.dataset.label} 하시겠습니까?`);
-      if (!confirmed) return;
+      const password = window.prompt(`${btn.dataset.label}하려면 등록 시 입력한 비밀번호를 입력하세요:`);
+      if (password === null) return; // user cancelled the prompt
+      if (!password.trim()) {
+        alert("비밀번호를 입력해주세요.");
+        return;
+      }
 
       btn.disabled = true;
       try {
         const res = await fetch(`/api/reservations?id=${encodeURIComponent(btn.dataset.id)}`, {
           method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ password: password.trim() }),
         });
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
