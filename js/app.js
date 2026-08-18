@@ -110,6 +110,67 @@
   }
 
   // ---------- Reservation status panel ----------
+  function formatDurationKo(ms) {
+    const totalMinutes = Math.max(0, Math.round(ms / 60000));
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    if (hours === 0) return `${minutes}분`;
+    if (minutes === 0) return `${hours}시간`;
+    return `${hours}시간 ${minutes}분`;
+  }
+
+  // Collapses back-to-back / overlapping reservations (e.g. one researcher's
+  // slot ending exactly when the next one starts) into single busy blocks,
+  // so the status badge reports the real wait time instead of just the
+  // current reservation's end time.
+  function mergeIntervals(records) {
+    const blocks = [];
+    for (const record of records) {
+      const last = blocks[blocks.length - 1];
+      if (last && record.startDate <= last.end) {
+        if (record.endDate > last.end) last.end = record.endDate;
+      } else {
+        blocks.push({ start: record.startDate, end: record.endDate });
+      }
+    }
+    return blocks;
+  }
+
+  // `records` is the equipment's active-or-upcoming reservations (already
+  // filtered to endDate >= now), sorted by start ascending.
+  function renderStatusBadge(records, now) {
+    const blocks = mergeIntervals(records);
+    const currentBlock = blocks.find((block) => block.start <= now && block.end > now);
+
+    if (currentBlock) {
+      const remaining = formatDurationKo(currentBlock.end - now);
+      return `
+        <div class="status-badge status-busy">
+          <span class="status-dot"></span>
+          <span class="status-text">사용 중 — ${formatKst(currentBlock.end)}까지 (약 ${remaining} 남음)</span>
+        </div>
+      `;
+    }
+
+    const upcomingBlock = blocks.find((block) => block.start > now);
+    if (upcomingBlock) {
+      const until = formatDurationKo(upcomingBlock.start - now);
+      return `
+        <div class="status-badge status-free">
+          <span class="status-dot"></span>
+          <span class="status-text">지금 사용 가능 — ${formatKst(upcomingBlock.start)}부터 예약 있음 (약 ${until} 후)</span>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="status-badge status-free">
+        <span class="status-dot"></span>
+        <span class="status-text">지금 사용 가능</span>
+      </div>
+    `;
+  }
+
   async function renderReservationList() {
     const listEl = document.getElementById("reservation-list");
     const equipment = document.getElementById("equipment-select").value;
@@ -122,12 +183,14 @@
         .filter((record) => record.equipment === equipment && record.endDate >= now)
         .sort((a, b) => a.startDate - b.startDate);
 
+      const statusHtml = renderStatusBadge(active, now);
+
       if (active.length === 0) {
-        listEl.innerHTML = `<p class="reservation-empty">No active reservations for this equipment.</p>`;
+        listEl.innerHTML = `${statusHtml}<p class="reservation-empty">No active reservations for this equipment.</p>`;
         return;
       }
 
-      listEl.innerHTML = active
+      const itemsHtml = active
         .map(
           (record) => `
             <p class="reservation-item">
@@ -137,6 +200,7 @@
           `
         )
         .join("");
+      listEl.innerHTML = statusHtml + itemsHtml;
     } catch (err) {
       listEl.innerHTML = `<p class="reservation-empty">${escapeHtml(err.message)}</p>`;
     }

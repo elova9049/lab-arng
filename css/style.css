@@ -208,6 +208,38 @@ body {
     white-space: pre-line;
 }
 
+/* Status badge */
+.status-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.status-dot {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.status-busy .status-dot {
+    background: #a24a4a;
+}
+
+.status-free .status-dot {
+    background: #4a8a5a;
+}
+
+.status-text {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--charcoal);
+    line-height: 1.5;
+}
+
 /* Reservation list */
 .reservation-empty {
     font-size: 0.88rem;

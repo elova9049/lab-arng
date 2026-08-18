@@ -2,8 +2,11 @@
   "name": "lab-arng",
   "version": "1.0.0",
   "private": true,
-  "description": "시험 장비 예약 - Notion-backed lab equipment reservation app",
+  "description": "시험 장비 예약 - Postgres-backed lab equipment reservation app",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.1.0"
   }
 }
