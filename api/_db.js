@@ -72,6 +72,7 @@ function ensureSchema() {
 
 function toRecord(row) {
   return {
+    id: row.id,
     name: row.name,
     equipment: row.equipment,
     start: new Date(row.start_time).toISOString(),
@@ -83,7 +84,7 @@ async function fetchAllReservationRecords() {
   await ensureSchema();
   const sql = getSql();
   const rows = await sql`
-    SELECT name, equipment, start_time, end_time
+    SELECT id, name, equipment, start_time, end_time
     FROM reservations
     ORDER BY start_time ASC
   `;
@@ -94,12 +95,25 @@ async function fetchEquipmentReservationRecords(equipment) {
   await ensureSchema();
   const sql = getSql();
   const rows = await sql`
-    SELECT name, equipment, start_time, end_time
+    SELECT id, name, equipment, start_time, end_time
     FROM reservations
     WHERE equipment = ${equipment}
     ORDER BY start_time ASC
   `;
   return rows.map(toRecord);
+}
+
+// Used for both "cancel a not-yet-started reservation" and "end an
+// in-progress one early" — the app has no history view, so there's no
+// benefit to distinguishing the two at the data layer, only in the button
+// label the UI shows.
+async function deleteReservation(id) {
+  await ensureSchema();
+  const sql = getSql();
+  const rows = await sql`
+    DELETE FROM reservations WHERE id = ${id} RETURNING id
+  `;
+  return rows.length > 0;
 }
 
 async function createReservation({ name, equipment, startIso, endIso }) {
@@ -126,4 +140,5 @@ module.exports = {
   fetchAllReservationRecords,
   fetchEquipmentReservationRecords,
   createReservation,
+  deleteReservation,
 };
