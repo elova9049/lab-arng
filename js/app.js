@@ -259,12 +259,18 @@
           headerToolbar: {
             left: "prev,next today",
             center: "title",
-            right: "dayGridMonth,timeGridWeek,listWeek",
+            right: "dayGridMonth,listWeek",
           },
           eventDisplay: "block",
           dayMaxEvents: 4,
           moreLinkClick: "popover",
           events: [],
+          // The ko locale's default day-number formatting (via Intl)
+          // appends "일" to every cell (e.g. "16일"), which reads as
+          // clutter in a compact month grid — just show the bare number.
+          dayCellContent: function (arg) {
+            return String(arg.date.getDate());
+          },
           eventContent: function (arg) {
             const bg = arg.event.backgroundColor || "#2b2b2b";
             const border = arg.event.borderColor || bg;
