@@ -100,12 +100,12 @@ module.exports = async function handler(req, res) {
         return;
       }
 
+      // No "password required" gate here on purpose: an empty string is a
+      // valid password to check — deleteReservation() authorizes it when
+      // the reservation itself has no password_hash set (created before
+      // this feature existed), and rejects it like any other wrong
+      // password otherwise.
       const password = typeof req.body?.password === "string" ? req.body.password.trim() : "";
-      if (!password) {
-        res.status(400).json({ error: "비밀번호를 입력해주세요." });
-        return;
-      }
-
       const result = await deleteReservation(id, password);
       if (result === "deleted") {
         res.status(200).json({ ok: true });
