@@ -426,3 +426,21 @@ a.fc-event:active {
     color: var(--charcoal) !important;
     text-decoration: none !important;
 }
+
+.fc-list-event-time {
+    color: var(--matte-grey);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+/* Reuses the same name/period visual hierarchy as the 장비 예약 현황
+   panel so the two lists read as one consistent system. */
+.lab-list-name {
+    color: var(--charcoal);
+    font-weight: 500;
+}
+
+.lab-list-equipment {
+    color: var(--matte-grey);
+    font-weight: 400;
+}

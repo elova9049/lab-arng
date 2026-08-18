@@ -247,6 +247,9 @@
           backgroundColor: color,
           borderColor: color,
           textColor: "#ffffff",
+          // Kept separate from `title` so eventContent can lay the two
+          // out differently per view instead of splitting a joined string.
+          extendedProps: { name: record.name, equipment: record.equipment },
         };
       });
 
@@ -272,11 +275,24 @@
             return String(arg.date.getDate());
           },
           eventContent: function (arg) {
+            const name = escapeHtml(arg.event.extendedProps.name || "");
+            const equipment = escapeHtml(arg.event.extendedProps.equipment || "");
+
+            // List view already gets a colored dot per row from
+            // FullCalendar itself (see .fc-list-event-dot), so name/
+            // equipment can just be plain, scannable text here instead of
+            // repeating the color as a full chip — a long white-on-color
+            // "이름 · 장비명" block is harder to read in a dense list.
+            if (arg.view.type === "listWeek") {
+              return {
+                html: `<span class="lab-list-name">${name}</span><span class="lab-list-equipment"> · ${equipment}</span>`,
+              };
+            }
+
             const bg = arg.event.backgroundColor || "#2b2b2b";
             const border = arg.event.borderColor || bg;
-            const title = escapeHtml(arg.event.title || "");
             return {
-              html: `<div class="lab-event-chip" style="background-color:${bg};border:1px solid ${border};color:#ffffff;">${title}</div>`,
+              html: `<div class="lab-event-chip" style="background-color:${bg};border:1px solid ${border};color:#ffffff;">${name} · ${equipment}</div>`,
             };
           },
           eventDidMount: function (info) {
