@@ -3,10 +3,13 @@
 const {
   fetchAllReservationRecords,
   fetchEquipmentReservationRecords,
-  intervalsOverlap,
-  createReservationPage,
-} = require("./_notion");
+  createReservation,
+} = require("./_db");
 const EQUIPMENT_OPTIONS = require("./_equipment");
+
+function intervalsOverlap(startA, endA, startB, endB) {
+  return startA < endB && startB < endA;
+}
 
 module.exports = async function handler(req, res) {
   try {
@@ -37,28 +40,33 @@ module.exports = async function handler(req, res) {
         return;
       }
 
-      const existing = await fetchEquipmentReservationRecords(equipment);
-      const conflicts = existing.filter((record) =>
-        intervalsOverlap(startMs, endMs, record.startMs, record.endMs)
-      );
+      try {
+        const created = await createReservation({
+          name: trimmedName,
+          equipment,
+          startIso: new Date(startMs).toISOString(),
+          endIso: new Date(endMs).toISOString(),
+        });
+        res.status(201).json({ ok: true, id: created.id });
+      } catch (err) {
+        if (!err.isConflict) throw err;
 
-      if (conflicts.length > 0) {
-        const nextAvailableMs = Math.max(...conflicts.map((record) => record.endMs));
+        // The database rejected the insert as overlapping (source of
+        // truth). Re-read this equipment's bookings just to compute a
+        // helpful "try again after" time for the notice.
+        const existing = await fetchEquipmentReservationRecords(equipment);
+        const conflicts = existing.filter((record) =>
+          intervalsOverlap(startMs, endMs, Date.parse(record.start), Date.parse(record.end))
+        );
+        const nextAvailableMs = conflicts.length
+          ? Math.max(...conflicts.map((record) => Date.parse(record.end)))
+          : endMs;
+
         res.status(409).json({
           error: "선택한 시간에 이미 예약이 존재합니다.",
           nextAvailable: new Date(nextAvailableMs).toISOString(),
         });
-        return;
       }
-
-      const page = await createReservationPage({
-        name: trimmedName,
-        equipment,
-        startIso: start,
-        endIso: end,
-      });
-
-      res.status(201).json({ ok: true, id: page.id });
       return;
     }
 
