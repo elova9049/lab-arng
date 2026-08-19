@@ -327,23 +327,7 @@ body {
     accent-color: var(--charcoal);
 }
 
-/* Calendar legend */
-.calendar-legend {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.65rem 1rem;
-    margin: 0 0 1rem 0;
-}
-
-.calendar-legend-item {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: 0.74rem;
-    color: var(--charcoal-soft);
-}
-
-.calendar-legend-swatch {
+.filter-chip-swatch {
     width: 0.75rem;
     height: 0.75rem;
     border-radius: 2px;

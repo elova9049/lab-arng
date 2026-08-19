@@ -74,6 +74,7 @@
       (name) => `
         <label class="filter-chip">
           <input type="checkbox" value="${escapeHtml(name)}" checked />
+          <span class="filter-chip-swatch" style="background:${EQUIPMENT_COLOR_MAP[name] || "#6e6e6e"};"></span>
           <span>${escapeHtml(name)}</span>
         </label>
       `
@@ -211,26 +212,14 @@
   }
 
   // ---------- Calendar tab ----------
-  function renderCalendarLegend(names) {
-    const legend = document.getElementById("calendar-legend");
-    legend.innerHTML = names
-      .map(
-        (name) => `
-          <span class="calendar-legend-item">
-            <span class="calendar-legend-swatch" style="background:${EQUIPMENT_COLOR_MAP[name] || "#6e6e6e"};"></span>
-            ${escapeHtml(name)}
-          </span>
-        `
-      )
-      .join("");
-  }
-
+  // No separate legend here — each filter checkbox already carries its
+  // equipment's color swatch (see populateEquipmentFilter), so a second
+  // list of the same 16 names would just repeat it and push the calendar
+  // further down the page.
   async function renderCalendarTab() {
     const checked = Array.from(
       document.querySelectorAll("#equipment-filter input:checked")
     ).map((input) => input.value);
-    const visibleNames = EQUIPMENT_OPTIONS.filter((name) => checked.includes(name));
-    renderCalendarLegend(visibleNames);
 
     const calendarEl = document.getElementById("calendar");
 
